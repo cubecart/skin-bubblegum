@@ -1,0 +1,202 @@
+/**
+ * Confetti design tokens (derived from Atrium).
+ *
+ * Same indirection model as Atrium — every token reads a --cc-* property with a
+ * fallback — so sub-themes, the admin colour pickers and custom.css all work
+ * unchanged. Only the fallback VALUES differ, plus a handful of new tokens
+ * (display face, outline, pop colours) that confetti.css consumes.
+ *
+ * Every token indirects through a --cc-* custom property with a fallback, so a
+ * merchant can retheme the entire skin from css/custom.css WITHOUT rebuilding:
+ *
+ *     :root { --cc-brand-600: oklch(52% 0.19 25); }
+ *
+ * That is the whole point of the indirection — hardcoding the palette into the
+ * utilities would force a Node toolchain on every merchant who wants a different
+ * colour. Do not "simplify" this away.
+ */
+
+@theme {
+  /* ── Brand ───────────────────────────────────────────────────────────────
+     Bubblegum pink. 600 is #d8006d, 5.1:1 against white, so white button
+     labels pass AA at body size. */
+  --color-brand-50:  var(--cc-brand-50,  oklch(97.4% 0.018 355));
+  --color-brand-100: var(--cc-brand-100, oklch(94.4% 0.042 355));
+  --color-brand-200: var(--cc-brand-200, oklch(89.0% 0.082 355));
+  --color-brand-300: var(--cc-brand-300, oklch(81.5% 0.135 356));
+  --color-brand-400: var(--cc-brand-400, oklch(72.5% 0.190 358));
+  --color-brand-500: var(--cc-brand-500, oklch(64.5% 0.225 0));
+  --color-brand-600: var(--cc-brand-600, oklch(57.0% 0.230 2));
+  --color-brand-700: var(--cc-brand-700, oklch(50.0% 0.200 4));
+  --color-brand-800: var(--cc-brand-800, oklch(43.0% 0.165 5));
+  --color-brand-900: var(--cc-brand-900, oklch(37.0% 0.130 6));
+  --color-brand-950: var(--cc-brand-950, oklch(26.0% 0.090 8));
+
+  /* ── Neutrals ────────────────────────────────────────────────────────────
+     The page is a warm cream (50) with white surfaces (100) sitting on it, so
+     cards and tiles lift off the ground. Text greys lean grape, to sit with
+     the outline colour rather than against it. */
+  --color-ink-50:  var(--cc-ink-50,  oklch(98.4% 0.014 90));
+  --color-ink-100: var(--cc-ink-100, oklch(99.8% 0.003 90));
+  --color-ink-200: var(--cc-ink-200, oklch(93.0% 0.016 300));
+  --color-ink-300: var(--cc-ink-300, oklch(86.5% 0.022 300));
+  --color-ink-400: var(--cc-ink-400, oklch(70.5% 0.028 300));
+  --color-ink-500: var(--cc-ink-500, oklch(55.5% 0.030 300));
+  --color-ink-600: var(--cc-ink-600, oklch(45.5% 0.032 300));
+  --color-ink-700: var(--cc-ink-700, oklch(37.5% 0.034 300));
+  --color-ink-800: var(--cc-ink-800, oklch(28.0% 0.036 300));
+  --color-ink-900: var(--cc-ink-900, oklch(21.5% 0.040 300));
+  --color-ink-950: var(--cc-ink-950, oklch(15.0% 0.036 300));
+
+  /* ── Chrome: the navigation bar and footer band ──────────────────────────
+     DELIBERATELY NON-INVERTING. The ink scale flips between themes
+     (--cc-ink-950 is 14.2% in light and 98.6% in dark), so styling these
+     bands with bg-ink-950 would paint them near-white in dark mode. These
+     tokens are defined once and never overridden in [data-theme="dark"].
+
+     One definition serves both themes: against a ~98% light page the band
+     reads as black, and against the 14.2% dark page it sits 3 points lighter,
+     so the chrome stays distinguishable from the page instead of merging
+     into it. Do not "fix" this by adding a dark-mode override. */
+  /* Confetti: a deep grape band rather than near-black. Still dark enough
+     (L 30%) that white nav labels clear 14:1. */
+  --color-chrome:        var(--cc-chrome,        oklch(30.0% 0.140 295));
+  --color-chrome-hover:  var(--cc-chrome-hover,  oklch(38.0% 0.150 295));
+  --color-chrome-fg:     var(--cc-chrome-fg,     oklch(99.0% 0.004 295));
+  --color-chrome-muted:  var(--cc-chrome-muted,  oklch(80.0% 0.050 295));
+  --color-chrome-border: var(--cc-chrome-border, oklch(21.5% 0.040 300));
+  /* danger-600 is only ~53% L — too dark to sit on the chrome band, so the
+     sale link gets a lifted red that clears contrast on near-black. */
+  --color-chrome-sale:   var(--cc-chrome-sale,   oklch(88.0% 0.170 95));
+
+  /* ── Confetti: outline, shadow and pop colours ───────────────────────────
+     outline  — every chunky 2px border and the hard offset shadow under
+                buttons and cards. Near-black grape in light mode.
+     shadow   — the colour of that hard shadow. Split from outline so dark
+                mode can keep light borders but a black drop.
+     pop-1..4 — decorative only, NEVER a text colour on the page (none of them
+                clears 3:1 on cream). Tile shadows cycle through them in order,
+                the rainbow stripe uses all four plus brand, and pop-1 is the
+                highlighter behind section headings. Sub-themes reorder these.
+     Non-inverting: a yellow that turned navy in dark mode stops being fun. */
+  --color-outline: var(--cc-outline, oklch(21.5% 0.040 300));
+  --color-shadow:  var(--cc-shadow,  oklch(21.5% 0.040 300));
+  --color-pop-1: var(--cc-pop-1, oklch(88.0% 0.170 95));   /* sunshine */
+  --color-pop-2: var(--cc-pop-2, oklch(83.0% 0.120 205));  /* sky */
+  --color-pop-3: var(--cc-pop-3, oklch(87.0% 0.180 130));  /* lime */
+  --color-pop-4: var(--cc-pop-4, oklch(76.0% 0.150 50));   /* tangerine */
+  /* Text that sits ON a pop colour (hover pills, stickers, the highlighter).
+     Fixed dark in both themes, because the pops do not invert either. */
+  --color-on-pop: var(--cc-on-pop, oklch(21.5% 0.040 300));
+
+  /* Rating gold. NON-INVERTING like the chrome tokens: gold that flipped to
+     navy in dark mode would stop reading as a star. Deliberately NOT
+     --color-warn-600 (#b26e00, a bronze) — a rating is not a warning, and this
+     file's own rule is that a semantic colour must carry exactly one signal.
+     ~2.4:1 on the light page, which is inherent to gold; acceptable because
+     the score is never colour-only — every star row also carries a numeric
+     readout and an aria-label. */
+  --color-star: var(--cc-star, oklch(72% 0.150 80));
+
+  /* what3words brand red, for the /// prefix. NON-INVERTING like the star and
+     the chrome tokens: it is somebody else's brand mark, and a themed version
+     of it is simply the wrong colour. */
+  --color-w3w: var(--cc-w3w, #e11f26);
+
+  /* ── Semantic. Separate from brand: a store's accent must never be the
+       same signal as "your payment failed". ────────────────────────────── */
+  --color-danger-50:  var(--cc-danger-50,  oklch(96.8% 0.016 22));
+  --color-danger-200: var(--cc-danger-200, oklch(88.4% 0.062 22));
+  --color-danger-600: var(--cc-danger-600, oklch(53.4% 0.196 26));
+  --color-danger-700: var(--cc-danger-700, oklch(46.2% 0.172 26));
+
+  --color-success-50:  var(--cc-success-50,  oklch(96.6% 0.021 152));
+  --color-success-200: var(--cc-success-200, oklch(87.2% 0.070 152));
+  --color-success-600: var(--cc-success-600, oklch(52.8% 0.126 152));
+  --color-success-700: var(--cc-success-700, oklch(44.8% 0.108 152));
+
+  /* Order-status stamp inks. Fixed hues, independent of the brand accent so
+     a red-branded store cannot print PENDING in the ink of DECLINED. Lifted
+     in the dark block below: the stamp is an outline, colour is the signal. */
+  --color-stamp-pending:  var(--cc-stamp-pending,  oklch(53.2% 0.148 250));
+  --color-stamp-process:  var(--cc-stamp-process,  oklch(62.0% 0.155 55));
+  --color-stamp-complete: var(--cc-stamp-complete, oklch(52.8% 0.126 152));
+  --color-stamp-declined: var(--cc-stamp-declined, oklch(53.4% 0.196 26));
+
+  --color-warn-50:  var(--cc-warn-50,  oklch(97.2% 0.026 85));
+  --color-warn-200: var(--cc-warn-200, oklch(89.4% 0.088 82));
+  --color-warn-600: var(--cc-warn-600, oklch(59.8% 0.132 68));
+  --color-warn-700: var(--cc-warn-700, oklch(50.4% 0.114 62));
+
+  /* ── Type ────────────────────────────────────────────────────────────────
+     System stacks BY DEFAULT, and no webfont is fetched unless a merchant asks
+     for one: element.css.php is loaded on every storefront page including
+     checkout, and a third-party font CDN there is a render-blocking dependency,
+     a GDPR data transfer, and a PCI script-inventory item.
+
+     The default family, Figtree, is BUNDLED and served from the store's own
+     origin (css/src/fonts.css, fonts/) precisely so the default costs none of
+     the three. The system stack stays behind it: if the woff2 fails to load the
+     page is unchanged from how this skin looked before it was bundled.
+
+     The "Font" skin setting opts in to a Google-HOSTED font instead
+     (element.font.php), which sets --cc-font-sans and so replaces Figtree
+     entirely — the bundled files are then never requested, because nothing
+     references the family. That path does carry the three costs, which is why
+     it is opt-in and says so in the setting's own description. */
+  /* Display: headings, prices, buttons. Bundled like Figtree (fonts.css). */
+  --font-display: var(--cc-font-display, "Bricolage Grotesque", "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
+  --font-sans: var(--cc-font-sans, "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
+  --font-serif: var(--cc-font-serif, ui-serif, Georgia, Cambria, "Times New Roman", serif);
+  --font-mono: var(--cc-font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+
+  /* ── Shape ───────────────────────────────────────────────────────────── */
+  /* Rounder than Atrium: friendly, not clinical. Buttons go fully pill in
+     confetti.css regardless. */
+  --radius-cc: var(--cc-radius, 0.75rem);
+  --radius-cc-lg: var(--cc-radius-lg, 1.25rem);
+
+  /* ── Layout ──────────────────────────────────────────────────────────── */
+  --spacing-header: var(--cc-header-height, 4rem);
+  --spacing-logo: var(--cc-logo-height, 2.5rem);
+}
+
+/* Dark palette. Token-level only — no component ever declares a colour inside
+ * this block, so every surface stays consistent in both themes. */
+[data-theme="dark"] {
+  /* Night-time grape rather than neutral charcoal. */
+  --cc-ink-50:  oklch(16.5% 0.030 295);
+  --cc-ink-100: oklch(21.0% 0.038 295);
+  --cc-ink-200: oklch(28.0% 0.042 295);
+  --cc-ink-300: oklch(36.0% 0.044 295);
+  --cc-ink-400: oklch(50.0% 0.040 295);
+  --cc-ink-500: oklch(64.0% 0.034 295);
+  --cc-ink-600: oklch(75.5% 0.026 295);
+  --cc-ink-700: oklch(84.5% 0.018 295);
+  --cc-ink-800: oklch(91.5% 0.012 295);
+  --cc-ink-900: oklch(96.0% 0.008 295);
+  --cc-ink-950: oklch(98.8% 0.004 295);
+
+  --cc-brand-50:  oklch(26.0% 0.090 355);
+  --cc-brand-100: oklch(32.0% 0.110 355);
+  --cc-brand-600: oklch(72.0% 0.190 358);
+  --cc-brand-700: oklch(80.0% 0.140 356);
+  /* The lifted dark-mode pink is too light for white labels, so buttons and
+     the skip link flip to dark text. A merchant Brand Colour sets its own
+     --cc-brand-fg later in the cascade and wins, as in Atrium. */
+  --cc-brand-fg: oklch(18.0% 0.040 300);
+
+  /* Light outlines on dark surfaces, but the drop stays black: a pale hard
+     shadow reads as a glow, not as depth. */
+  --cc-outline: oklch(86.0% 0.040 300);
+  --cc-shadow:  oklch(6.0% 0.020 300);
+
+  --cc-danger-50: oklch(22.8% 0.052 25);
+  --cc-success-50: oklch(21.6% 0.044 152);
+  --cc-warn-50: oklch(23.4% 0.048 74);
+
+  --cc-stamp-pending:  oklch(76.2% 0.118 246);
+  --cc-stamp-process:  oklch(78.4% 0.140 62);
+  --cc-stamp-complete: oklch(76.8% 0.126 154);
+  --cc-stamp-declined: oklch(72.5% 0.165 26);
+}

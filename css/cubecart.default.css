@@ -1,0 +1,7 @@
+/**
+ * Sub-theme "default", shown in admin as Leopard.
+ *
+ * Empty on purpose: the palette is theme.css's fallback and the leopard is
+ * the fallback print in confetti.css. The file must still exist, as
+ * element.css.php links it unconditionally from $SKIN_SUBSET.
+ */

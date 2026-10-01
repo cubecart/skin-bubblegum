@@ -1,0 +1,8 @@
+/**
+ * Sub-theme "giraffe": the Bubblegum palette with a giraffe print behind the main area.
+ */
+:root {
+  --cc-wild-bg: url("../images/giraffe.svg?v=2");
+  --cc-wild-bg-dark: url("../images/giraffe-dark.svg?v=2");
+  --cc-wild-size: 320px;
+}

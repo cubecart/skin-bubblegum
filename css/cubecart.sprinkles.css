@@ -1,0 +1,8 @@
+/**
+ * Sub-theme "sprinkles": the Bubblegum palette with sprinkles behind the main area.
+ */
+:root {
+  --cc-wild-bg: url("../images/sprinkles.svg?v=2");
+  --cc-wild-bg-dark: url("../images/sprinkles-dark.svg?v=2");
+  --cc-wild-size: 240px;
+}

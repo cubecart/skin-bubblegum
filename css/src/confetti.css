@@ -1,0 +1,589 @@
+/**
+ * Confetti — the personality layer.
+ *
+ * Everything that makes Confetti look like Confetti rather than Atrium lives in
+ * this one file, imported LAST from input.css. The other css/src files stay
+ * byte-identical to Atrium's apart from theme.css's token values, so an Atrium
+ * fix can be copied across without a merge.
+ *
+ * The look, in four moves:
+ *   1. Chunky 2px outlines and HARD offset shadows (no blur) on buttons, cards,
+ *      inputs and product tiles. Buttons press down into their shadow.
+ *   2. Candy colour: a pink brand on a grape band, with four "pop" colours
+ *      (theme.css) cycling through tile shadows, stickers and highlights.
+ *   3. A rainbow stripe under the header and over the footer, and a scatter
+ *      of confetti across the footer band.
+ *   4. Bricolage Grotesque, extra-bold, for headings, prices and buttons.
+ *
+ * Two placements, and the choice between them is not style:
+ *
+ *   @layer components  Restyles Atrium's own component classes. Same layer
+ *                      and same specificity as the rule it replaces, and later
+ *                      in source order, so it wins — while still LOSING to a
+ *                      template's utility classes, which is what we want for
+ *                      one-off overrides like hover:border-brand-600.
+ *
+ *   unlayered          Only where a template's utility class has to be BEATEN
+ *                      (e.g. a tile's border-ink-200, a heading's
+ *                      font-semibold). Tailwind emits @layer utilities after
+ *                      @layer components, and a later layer beats any
+ *                      specificity; only unlayered rules outrank it. See the
+ *                      footer note in components.css.
+ *
+ * Motion: every transform here is decoration. The blanket reduced-motion rule
+ * in base.css flattens transitions; the explicit opt-outs below also drop the
+ * resting tilts and hover lifts, not just their animation.
+ */
+
+/* ── Shared pieces ──────────────────────────────────────────────────────── */
+:root {
+  /* The rainbow stripe. A custom property rather than a repeated gradient so
+     the header and footer can never drift apart. Hard stops, not a blend:
+     confetti is paper, not a sunset. */
+  --confetti-stripe: linear-gradient(90deg,
+    var(--color-brand-500) 0 20%,
+    var(--color-pop-4) 20% 40%,
+    var(--color-pop-1) 40% 60%,
+    var(--color-pop-3) 60% 80%,
+    var(--color-pop-2) 80% 100%);
+  --confetti-stripe-h: 6px;
+
+  /* Hard shadow offsets. */
+  --confetti-lift-sm: 3px;
+  --confetti-lift: 5px;
+  --confetti-lift-lg: 8px;
+}
+
+@layer base {
+  ::selection {
+    background-color: var(--color-pop-1);
+    color: var(--color-on-pop);
+  }
+
+  /* Thicker, offset focus ring: it has to be seen against 2px outlines. */
+  :focus-visible {
+    outline: 3px solid var(--color-brand-600);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); }
+}
+
+@layer components {
+
+  /* ── Buttons ───────────────────────────────────────────────────────────
+     Pills with an outline and a hard shadow. Hover lifts toward the viewer,
+     :active presses down INTO the shadow, which is the whole joke.
+     Ghost buttons (header icons, view toggles) stay flat: a row of outlined
+     icons in the header would read as clutter, not fun. */
+  .cc-btn {
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    transition: transform 120ms ease, box-shadow 120ms ease,
+                background-color 120ms, color 120ms, border-color 120ms;
+  }
+
+  .cc-btn-primary,
+  .cc-btn-secondary {
+    border: 2px solid var(--color-outline);
+    box-shadow: var(--confetti-lift-sm) var(--confetti-lift-sm) 0 var(--color-shadow);
+  }
+  .cc-btn-primary:hover:not(:disabled),
+  .cc-btn-secondary:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: calc(var(--confetti-lift-sm) + 1px) calc(var(--confetti-lift-sm) + 1px) 0 var(--color-shadow);
+  }
+  .cc-btn-primary:active:not(:disabled),
+  .cc-btn-secondary:active:not(:disabled) {
+    transform: translate(var(--confetti-lift-sm), var(--confetti-lift-sm));
+    box-shadow: 0 0 0 var(--color-shadow);
+  }
+  /* A disabled button is not pressable, so it should not look raised. */
+  .cc-btn-primary:disabled,
+  .cc-btn-secondary:disabled {
+    box-shadow: none;
+    border-style: dashed;
+  }
+
+  /* Secondary goes sunshine on hover. on-pop, not ink: the pops do not invert,
+     so ink text would turn white-on-yellow in dark mode. */
+  .cc-btn-secondary {
+    background-color: var(--color-ink-100);
+    color: var(--color-ink-900);
+  }
+  .cc-btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-pop-1);
+    color: var(--color-on-pop);
+  }
+
+  /* The added-to-basket confirmation keeps Atrium's green and gains the
+     outline, so it does not jump in size when the class lands. */
+  .cc-btn-primary.cc-btn-added,
+  .cc-btn-primary.cc-btn-added:hover:not(:disabled) {
+    border-color: var(--color-outline);
+  }
+
+  .cc-btn-ghost:hover:not(:disabled) {
+    background-color: var(--color-brand-50);
+    color: var(--color-brand-700);
+  }
+
+  /* ── Form controls ─────────────────────────────────────────────────────
+     Same selector lists as components.css, so the specificity matches and
+     source order decides. */
+  .cc-input, .cc-select, .cc-textarea,
+  input[type="text"], input[type="email"], input[type="password"],
+  input[type="tel"], input[type="number"], input[type="search"],
+  input[type="url"], input[type="date"], select, textarea {
+    border: 2px solid var(--color-ink-800);
+    background-color: var(--color-ink-100);
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus,
+  input[type="tel"]:focus, input[type="number"]:focus, input[type="search"]:focus,
+  select:focus, textarea:focus, .cc-input:focus {
+    border-color: var(--color-outline);
+    box-shadow: var(--confetti-lift-sm) var(--confetti-lift-sm) 0 var(--color-brand-600);
+  }
+  .cc-label {
+    font-weight: 700;
+    color: var(--color-ink-900);
+  }
+
+  /* ── Cards ─────────────────────────────────────────────────────────────── */
+  .cc-card {
+    border: 2px solid var(--color-outline);
+    box-shadow: var(--confetti-lift) var(--confetti-lift) 0 var(--color-shadow);
+  }
+
+  /* ── Alerts: outlined in their own ink, with a matching drop ───────────── */
+  .cc-alert {
+    border-width: 2px;
+    font-weight: 500;
+    box-shadow: var(--confetti-lift-sm) var(--confetti-lift-sm) 0 currentColor;
+  }
+
+  /* ── Navigation band ───────────────────────────────────────────────────
+     Display face, and a sunshine pill on hover. The sale link is yellow on the
+     grape band (chrome-sale), so on a yellow pill it must switch to on-pop or
+     it vanishes. */
+  .cc-navbar { border-top: 2px solid var(--color-outline); }
+
+  :is(.cc-navbar, .cc-navrail) .cc-nav-link {
+    font-family: var(--font-display);
+    font-weight: 700;
+    border-radius: 999px;
+  }
+  :is(.cc-navbar, .cc-navrail) .cc-nav-link:hover,
+  :is(.cc-navbar, .cc-navrail) .cc-nav-sale:hover {
+    background-color: var(--color-pop-1);
+    color: var(--color-on-pop);
+  }
+  /* Rows inside a dropdown are full-width, so they stay square. */
+  :is(.cc-navbar, .cc-navrail) .cc-nav-menu .cc-nav-link { border-radius: 0; }
+
+  :is(.cc-navbar, .cc-navrail) .cc-nav-menu {
+    border: 2px solid var(--color-outline);
+    box-shadow: var(--confetti-lift) var(--confetti-lift) 0 var(--color-shadow);
+  }
+  .cc-navrail {
+    border: 2px solid var(--color-outline);
+    box-shadow: var(--confetti-lift) var(--confetti-lift) 0 var(--color-pop-1);
+  }
+
+  /* The light drawer on phones. */
+  .cc-nav-mobile .cc-nav-link { font-family: var(--font-display); font-weight: 700; }
+  .cc-nav-mobile .cc-nav-link:hover { background-color: var(--color-brand-50); color: var(--color-brand-700); }
+  .cc-nav-mobile .cc-nav-menu,
+  .cc-nav-mobile .cc-nav-menu .cc-nav-menu { border-inline-start: 2px dashed var(--color-brand-300); }
+
+  /* ── Footer band ───────────────────────────────────────────────────────
+     Re-declares the local footer tokens with Confetti's deep-plum fallbacks.
+     Same selector as components.css and later, so these win; a merchant's
+     Footer Colour (--cc-footer-*) still beats both. */
+  .cc-footer {
+    --color-chrome:        var(--cc-footer,        oklch(21.5% 0.070 300));
+    --color-chrome-hover:  var(--cc-footer-hover,  oklch(29.0% 0.085 300));
+    --color-chrome-border: var(--cc-footer-border, oklch(36.0% 0.090 300));
+    --color-chrome-muted:  var(--cc-footer-muted,  oklch(80.0% 0.040 300));
+    --color-chrome-fg:     var(--cc-footer-fg,     #fff);
+    position: relative;
+    border-top: 0;
+    padding-top: var(--confetti-stripe-h);
+    /* Scattered confetti. Fixed colours inside a data URI (custom properties
+       cannot reach in), at low opacity and small enough to sit behind text
+       without competing with it. Tiles every 180px. */
+    background-image:
+      var(--confetti-stripe),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' opacity='.28'%3E%3Crect x='14' y='22' width='12' height='4' rx='1.5' fill='%23fbd530' transform='rotate(-24 20 24)'/%3E%3Ccircle cx='72' cy='14' r='3' fill='%2354d3e8'/%3E%3Crect x='120' y='40' width='12' height='4' rx='1.5' fill='%23ff5aa5' transform='rotate(38 126 42)'/%3E%3Ccircle cx='160' cy='92' r='2.5' fill='%23b5ea5c'/%3E%3Crect x='40' y='84' width='10' height='4' rx='1.5' fill='%23ff8a4c' transform='rotate(62 45 86)'/%3E%3Ccircle cx='98' cy='110' r='3' fill='%23fbd530'/%3E%3Crect x='136' y='150' width='12' height='4' rx='1.5' fill='%2354d3e8' transform='rotate(-48 142 152)'/%3E%3Ccircle cx='22' cy='150' r='2.5' fill='%23ff5aa5'/%3E%3Crect x='70' y='160' width='10' height='4' rx='1.5' fill='%23b5ea5c' transform='rotate(14 75 162)'/%3E%3Cpath d='M92 60q4-6 8 0t8 0' stroke='%23ff8a4c' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-size: 100% var(--confetti-stripe-h), 180px 180px;
+    background-repeat: no-repeat, repeat;
+    background-position: top left, top left;
+  }
+  .cc-footer .cc-input {
+    border-color: var(--color-chrome-fg);
+  }
+  .cc-footer .cc-social-link:hover {
+    background-color: var(--color-pop-1);
+    color: var(--color-on-pop);
+  }
+
+  /* ── Homepage hero ─────────────────────────────────────────────────────
+     A framed banner with a big brand-pink drop. The inner slides lose 3px of
+     radius so their corners sit inside the frame rather than over it. */
+  .cc-hero {
+    border: 3px solid var(--color-outline);
+    box-shadow: var(--confetti-lift-lg) var(--confetti-lift-lg) 0 var(--color-brand-500);
+  }
+  .cc-hero > * { border-radius: calc(var(--radius-cc-lg) - 3px); }
+
+  /* ── Pagination and the checkout progress dots ─────────────────────────── */
+  .current.bg-brand-600 { border: 2px solid var(--color-outline); }
+
+  /* ── Order-status stamp: a little more ink ─────────────────────────────── */
+  .order_status { opacity: 0.95; }
+
+  /* ── Sale sticker (content.homepage.php, content.category.php) ─────────
+     Top-start of the tile image, tilted, in sunshine. Not a link and not
+     interactive: pointer-events none so it never blocks the image click. */
+  .cc-sticker {
+    position: absolute;
+    z-index: 1;
+    inset-block-start: -0.5rem;
+    inset-inline-start: -0.5rem;
+    padding: 0.25rem 0.625rem;
+    border: 2px solid var(--color-outline);
+    border-radius: 999px;
+    background-color: var(--color-pop-1);
+    color: var(--color-on-pop);
+    box-shadow: 2px 2px 0 var(--color-shadow);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-transform: uppercase;
+    transform: rotate(-8deg);
+    pointer-events: none;
+  }
+  [dir="rtl"] .cc-sticker { transform: rotate(8deg); }
+}
+
+/* ══ Unlayered: things that must beat a template's utility classes ═════════ */
+
+/* Headings: extra-bold display face. font-semibold on the templates' h1/h2
+   would otherwise hold them at 600. h3 is left to the utilities: it is used
+   for product names in tiles, where 800 would shout. */
+h1, h2 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Section headings on the home page and above related products get a
+   highlighter swipe in pop-1. box-decoration-break keeps the swipe on every
+   line when a long heading wraps. */
+:is(#content_latest_products, [id^="content_products_"]) h2,
+section:has(> ul > .cc-tile) > h2 {
+  display: inline;
+  padding-inline: 0.2em;
+  background-image: linear-gradient(transparent 58%, var(--color-pop-1) 58%, var(--color-pop-1) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ── Text links: a yellow highlighter swipes in on hover ──────────────────
+   Same marker as the headings. Unlayered to replace the templates'
+   hover:underline. */
+a[href]:not(.cc-btn, .cc-nav-link, .cc-nav-sale, .cc-card, .cc-media, .block, .flex, .inline-flex, .group, [class*="hover:bg-"], :has(img, svg, picture)) {
+  background-image: linear-gradient(transparent 58%, var(--color-pop-1) 58%, var(--color-pop-1) 92%, transparent 92%);
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 0% 100%;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background-size 250ms ease-out, color 150ms;
+}
+a[href]:not(.cc-btn, .cc-nav-link, .cc-nav-sale, .cc-card, .cc-media, .block, .flex, .inline-flex, .group, [class*="hover:bg-"], :has(img, svg, picture)):hover {
+  background-size: 100% 100%;
+  text-decoration: none;
+}
+/* On the dark footer band a half-height swipe under white text is unreadable,
+   so it fills the link and the text flips dark. */
+.cc-footer a[href]:not(.cc-btn, .cc-nav-link, .cc-nav-sale, .cc-card, .cc-media, .block, .flex, .inline-flex, .group, [class*="hover:bg-"], :has(img, svg, picture)) { background-image: linear-gradient(var(--color-pop-1), var(--color-pop-1)); }
+.cc-footer a[href]:not(.cc-btn, .cc-nav-link, .cc-nav-sale, .cc-card, .cc-media, .block, .flex, .inline-flex, .group, [class*="hover:bg-"], :has(img, svg, picture)):hover { color: var(--color-on-pop); }
+
+/* ── Main area: an animal print, full bleed, with content on cream panels ──
+   Leopard unless a sub-theme sets --cc-wild-bg (css/cubecart.<style>.css). */
+body { overflow-x: clip; }
+.cc-wild {
+  position: relative;
+  isolation: isolate;
+}
+.cc-wild::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(50% - 50vw);
+  z-index: -1;
+  background: var(--cc-wild-bg, url("../images/leopard.svg")) 0 0 / var(--cc-wild-size, 320px);
+}
+[data-theme="dark"] .cc-wild::before { background-image: var(--cc-wild-bg-dark, url("../images/leopard-dark.svg")); }
+.cc-wild > * {
+  margin-block: 0;
+  padding: 1rem;
+  background-color: var(--color-ink-50);
+  border: 2px solid var(--color-outline);
+  border-radius: var(--radius-cc-lg);
+  box-shadow: var(--confetti-lift) var(--confetti-lift) 0 var(--color-shadow);
+}
+.cc-wild > * + * { margin-top: 1rem; }
+@media (min-width: 640px) { .cc-wild > * { padding: 1.5rem; } }
+
+/* ── Quick view: a party popper, not a lightbox ─────────────────────────── */
+.cc-quickview-backdrop {
+  background-color: color-mix(in oklch, var(--color-chrome) 72%, transparent);
+  backdrop-filter: blur(4px);
+}
+.cc-quickview {
+  border: 3px solid var(--color-outline);
+  background-color: var(--color-ink-50);
+  box-shadow: var(--confetti-lift-lg) var(--confetti-lift-lg) 0 var(--color-pop-1);
+  animation: confetti-pop 420ms cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.cc-quickview::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--confetti-stripe-h);
+  background: var(--confetti-stripe);
+}
+@keyframes confetti-pop {
+  from { transform: scale(.8) rotate(-3deg); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.cc-quickview-close {
+  z-index: 2;
+  border: 2px solid var(--color-outline);
+  border-radius: 999px;
+  background-color: var(--color-pop-1);
+  color: var(--color-on-pop);
+  box-shadow: var(--confetti-lift-sm) var(--confetti-lift-sm) 0 var(--color-shadow);
+  transition: transform 200ms ease;
+}
+.cc-quickview-close:hover:not(:disabled) {
+  background-color: var(--color-pop-1);
+  color: var(--color-on-pop);
+  transform: rotate(90deg) scale(1.1);
+}
+.cc-quickview .cc-media.rounded-cc-lg,
+.cc-pdp > form .cc-media.rounded-cc-lg {
+  border: 2px solid var(--color-outline);
+  box-shadow: var(--confetti-lift) var(--confetti-lift) 0 var(--color-pop-2);
+  transform: rotate(-1.5deg);
+  transition: transform 200ms ease;
+}
+.cc-quickview .cc-media.rounded-cc-lg:hover,
+.cc-pdp > form .cc-media.rounded-cc-lg:hover { transform: rotate(0) scale(1.02); }
+.cc-quickview .image-gallery,
+.cc-pdp .image-gallery { border-width: 2px; }
+.cc-quickview h2 {
+  margin-inline-end: 3rem;
+  font-size: 1.6rem;
+  line-height: 1.3;
+}
+.cc-quickview h2 a {
+  color: var(--color-ink-900);
+  padding-inline: 0.15em;
+  background-image: linear-gradient(transparent 58%, var(--color-pop-1) 58%, var(--color-pop-1) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.cc-quickview h2 a,
+.cc-quickview h2 a:hover { background-size: 100% 100%; }
+.cc-quickview #ptp,
+.cc-pdp #ptp,
+.cc-grand-total dd {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.15em 0.5em;
+  border: 2px solid var(--color-outline);
+  border-radius: 0.6rem;
+  background-color: var(--color-pop-1);
+  box-shadow: var(--confetti-lift-sm) var(--confetti-lift-sm) 0 var(--color-shadow);
+  font-family: var(--font-display);
+  font-weight: 800;
+  transform: rotate(-3deg);
+}
+.cc-quickview #ptp:not(.text-danger-600),
+.cc-pdp #ptp:not(.text-danger-600),
+.cc-grand-total dd { color: var(--color-on-pop); }
+
+/* ── Product page ──────────────────────────────────────────────────────── */
+.cc-pdp h1,
+.cc-pdp h2#reviews {
+  display: inline;
+  padding-inline: 0.15em;
+  background-image: linear-gradient(transparent 58%, var(--color-pop-1) 58%, var(--color-pop-1) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.cc-pdp h1 { font-size: clamp(1.75rem, 3vw, 2.5rem); line-height: 1.2; }
+.cc-pdp .image-gallery.border-brand-600 { box-shadow: var(--confetti-lift-sm) var(--confetti-lift-sm) 0 var(--color-pop-4); }
+.cc-pdp .image-gallery:hover { transform: rotate(-3deg); }
+.cc-pdp .image-gallery { transition: transform 150ms ease; }
+
+/* Tabs become chunky pills. */
+.cc-pdp [role="tablist"] { gap: 0.75rem; padding-bottom: 0.75rem; }
+.cc-pdp [role="tab"] {
+  padding: 0.45rem 1.1rem;
+  border: 2px solid var(--color-outline);
+  border-radius: 999px;
+  background-color: var(--color-ink-50);
+  color: var(--color-ink-900);
+  font-family: var(--font-display);
+  font-weight: 700;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.cc-pdp [role="tab"]:hover { transform: translate(-1px, -1px); box-shadow: var(--confetti-lift-sm) var(--confetti-lift-sm) 0 var(--color-shadow); color: var(--color-ink-900); }
+.cc-pdp [role="tab"][aria-selected="true"] {
+  background-color: var(--color-pop-1);
+  color: var(--color-on-pop);
+  box-shadow: var(--confetti-lift-sm) var(--confetti-lift-sm) 0 var(--color-shadow);
+}
+.cc-pdp div:has(> [role="tablist"]) { border-bottom: 0; }
+
+/* The big buttons wobble like jelly when you point at them. */
+.cc-pdp #cc-main-buy:hover:not(:disabled),
+.cc-checkout #checkout_proceed:hover:not(:disabled) { animation: confetti-jelly 600ms ease both; }
+@keyframes confetti-jelly {
+  0%   { transform: translate(-1px, -1px) scale(1, 1); }
+  30%  { transform: translate(-1px, -1px) scale(1.06, 0.92); }
+  45%  { transform: translate(-1px, -1px) scale(0.95, 1.05); }
+  60%  { transform: translate(-1px, -1px) scale(1.03, 0.97); }
+  80%  { transform: translate(-1px, -1px) scale(0.99, 1.01); }
+  100% { transform: translate(-1px, -1px) scale(1, 1); }
+}
+
+/* ── Checkout ──────────────────────────────────────────────────────────── */
+body:has(.cc-checkout) { display: flex; flex-direction: column; }
+body:has(.cc-checkout) .cc-header { position: relative; z-index: 1; }
+.cc-checkout { flex: 1; }
+#box-progress .rounded-full {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 2px solid var(--color-outline);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  background-color: var(--color-ink-50);
+  color: var(--color-ink-900);
+}
+#box-progress .current .rounded-full {
+  background-color: var(--color-pop-1);
+  color: var(--color-on-pop);
+  box-shadow: var(--confetti-lift-sm) var(--confetti-lift-sm) 0 var(--color-shadow);
+  transform: rotate(-8deg);
+}
+#box-progress .current .truncate { font-family: var(--font-display); font-weight: 800; }
+#box-progress .h-px {
+  height: 0;
+  background: none;
+  border-top: 3px dotted var(--color-outline);
+}
+.cc-checkout :is(h1, h2).text-xl {
+  display: inline-block;
+  padding-inline: 0.15em;
+  background-image: linear-gradient(transparent 58%, var(--color-pop-1) 58%, var(--color-pop-1) 92%, transparent 92%);
+}
+.cc-grand-total dt { font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; }
+.cc-grand-total dd { font-size: 1.35rem; margin-top: 0.25rem; }
+
+/* ── Header ────────────────────────────────────────────────────────────────
+   The rainbow hangs BELOW the header rather than inside it. Inside, it would
+   add 6px the --spacing-header token does not know about, and the mobile
+   drawer (top-header) would start inside the header instead of under it.
+   Hanging it off a sticky, positioned header costs nothing: it overlaps the
+   top of the page padding, and the open drawer (z-50) simply covers it. */
+.cc-header {
+  border-bottom-color: var(--color-outline);
+  border-bottom-width: 2px;
+}
+.cc-header::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  height: var(--confetti-stripe-h);
+  background-image: var(--confetti-stripe);
+  pointer-events: none;
+}
+/* The mini-basket panel drops from the header: outline it to match. */
+.cc-header .shadow-lg.rounded-cc-lg {
+  border: 2px solid var(--color-outline);
+  box-shadow: var(--confetti-lift) var(--confetti-lift) 0 var(--color-shadow);
+}
+
+/* ── Product tiles ─────────────────────────────────────────────────────────
+   .cc-tile is on every listing <li> (home page, category, related products);
+   the recently-viewed row is built by 42-recent.js, so it is matched by its
+   container instead of editing shipped JS.
+
+   The image plate gets the outline, and a hard shadow in one of the four pop
+   colours, cycling so a grid reads as a box of crayons. On hover the plate
+   lifts and the shadow grows; the image's own zoom (group-hover:scale-105 on
+   the home page) still plays inside it. */
+:is(.cc-tile, .cc-recent-row > li) .cc-media.rounded-cc-lg {
+  --confetti-tile: var(--color-pop-1);
+  border: 2px solid var(--color-outline);
+  box-shadow: var(--confetti-lift) var(--confetti-lift) 0 var(--confetti-tile);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+:is(.cc-tile, .cc-recent-row > li):nth-child(4n+2) .cc-media.rounded-cc-lg { --confetti-tile: var(--color-pop-2); }
+:is(.cc-tile, .cc-recent-row > li):nth-child(4n+3) .cc-media.rounded-cc-lg { --confetti-tile: var(--color-pop-3); }
+:is(.cc-tile, .cc-recent-row > li):nth-child(4n+4) .cc-media.rounded-cc-lg { --confetti-tile: var(--color-pop-4); }
+
+:is(.cc-tile, .cc-recent-row > li):hover .cc-media.rounded-cc-lg,
+:is(.cc-tile, .cc-recent-row > li):focus-within .cc-media.rounded-cc-lg {
+  transform: translate(-2px, -2px) rotate(-1deg);
+  box-shadow: calc(var(--confetti-lift) + 3px) calc(var(--confetti-lift) + 3px) 0 var(--confetti-tile);
+}
+:is(.cc-tile, .cc-recent-row > li):nth-child(even):hover .cc-media.rounded-cc-lg,
+:is(.cc-tile, .cc-recent-row > li):nth-child(even):focus-within .cc-media.rounded-cc-lg {
+  transform: translate(-2px, -2px) rotate(1deg);
+}
+
+/* Product name bolder, price in the display face. Unlayered because the
+   template carries font-medium / font-semibold. */
+.cc-tile h3 { font-weight: 700; }
+:is(.cc-tile, .cc-recent-row > li) .price.font-semibold {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.125rem;
+}
+
+/* ── Breadcrumb: current page in bold ─────────────────────────────────────── */
+.breadcrumb-item:last-child { font-weight: 700; color: var(--color-ink-900); }
+
+/* ── Reduced motion: no tilt, no lift, no press ───────────────────────────
+   base.css shortens transitions to ~0 but a transform still APPLIES. These are
+   decoration with no information in them, so drop them outright. The sticker
+   keeps its tilt: it is static, not motion. */
+@media (prefers-reduced-motion: reduce) {
+  .cc-btn-primary:hover:not(:disabled),
+  .cc-btn-secondary:hover:not(:disabled),
+  .cc-btn-primary:active:not(:disabled),
+  .cc-btn-secondary:active:not(:disabled),
+  :is(.cc-tile, .cc-recent-row > li):hover .cc-media.rounded-cc-lg,
+  :is(.cc-tile, .cc-recent-row > li):focus-within .cc-media.rounded-cc-lg {
+    transform: none;
+  }
+  .cc-quickview,
+  .cc-quickview .cc-media.rounded-cc-lg,
+  .cc-quickview-close:hover:not(:disabled),
+  .cc-pdp > form .cc-media.rounded-cc-lg,
+  .cc-pdp .image-gallery:hover,
+  .cc-pdp #cc-main-buy:hover:not(:disabled),
+  .cc-checkout #checkout_proceed:hover:not(:disabled),
+  #box-progress .current .rounded-full { animation: none; transform: none; }
+}

@@ -1,0 +1,8 @@
+/**
+ * Sub-theme "checker": the Bubblegum palette with checkerboard behind the main area.
+ */
+:root {
+  --cc-wild-bg: url("../images/checker.svg?v=2");
+  --cc-wild-bg-dark: url("../images/checker-dark.svg?v=2");
+  --cc-wild-size: 320px;
+}

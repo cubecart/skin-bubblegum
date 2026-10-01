@@ -1,0 +1,8 @@
+/**
+ * Sub-theme "hearts": the Bubblegum palette with hearts behind the main area.
+ */
+:root {
+  --cc-wild-bg: url("../images/hearts.svg?v=2");
+  --cc-wild-bg-dark: url("../images/hearts-dark.svg?v=2");
+  --cc-wild-size: 240px;
+}

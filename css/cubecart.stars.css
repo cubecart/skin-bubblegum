@@ -1,0 +1,8 @@
+/**
+ * Sub-theme "stars": the Bubblegum palette with stars behind the main area.
+ */
+:root {
+  --cc-wild-bg: url("../images/stars.svg?v=2");
+  --cc-wild-bg-dark: url("../images/stars-dark.svg?v=2");
+  --cc-wild-size: 240px;
+}

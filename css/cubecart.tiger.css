@@ -1,0 +1,8 @@
+/**
+ * Sub-theme "tiger": the Bubblegum palette with a tiger print behind the main area.
+ */
+:root {
+  --cc-wild-bg: url("../images/tiger.svg?v=2");
+  --cc-wild-bg-dark: url("../images/tiger-dark.svg?v=2");
+  --cc-wild-size: 320px;
+}
