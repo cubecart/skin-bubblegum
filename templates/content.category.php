@@ -14,6 +14,13 @@
  * The CSRF token is injected before </form> by GUI::display().
  *}
 {include file='templates/element.media_fit.php'}
+{include file='templates/element.product_grid.php'}
+{assign var='cc_desc_below' value=(($SKIN_SETTINGS.category_description_position|default:'above') == 'below')}
+{* Category Image Width: cores before 6.8.5 store it unvalidated, so only a px
+   or % length is used here (a bare number means px) and anything else is ignored. *}
+{assign var='cc_cat_img_w' value=$SKIN_SETTINGS.category_image_width|default:''|replace:' ':''|lower}
+{if $cc_cat_img_w !== '' && ($cc_cat_img_w|regex_replace:'/^\d{1,4}(\.\d{1,2})?$/':'') === ''}{assign var='cc_cat_img_w' value="`$cc_cat_img_w`px"}{/if}
+{if ($cc_cat_img_w|regex_replace:'/^\d{1,4}(\.\d{1,2})?(px|%)$/':'') !== ''}{assign var='cc_cat_img_w' value=''}{/if}
 <div x-data="ccProductList('{$SKIN_SETTINGS.default_product_view|default:'grid'}')">
 
    <h1 class="text-2xl font-semibold tracking-tight text-ink-900 sm:text-3xl">{$category.cat_name}</h1>
@@ -22,10 +29,10 @@
    <img src="{$category.image}"
         alt="{if isset($category.image_tags.alt)}{$category.image_tags.alt}{else}{$category.cat_name}{/if}"
         {if isset($category.image_tags.title)}title="{$category.image_tags.title}"{/if}
-        class="cc-media mt-4 w-full rounded-cc-lg object-cover">
+        class="cc-media mt-4{if $cc_cat_img_w === ''} w-full{/if} rounded-cc-lg object-cover"{if $cc_cat_img_w !== ''} style="max-width:{$cc_cat_img_w}"{/if}>
    {/if}
 
-   {if !empty($category.cat_desc)}
+   {if !empty($category.cat_desc) && !$cc_desc_below}
    <div class="prose-cc mt-4">{$category.cat_desc}</div>
    {/if}
 
@@ -34,12 +41,16 @@
       {foreach from=$SUBCATS item=subcat}
       <li class="text-center">
          <a href="{$subcat.url}" title="{$subcat.cat_name}" class="group block">
+            {if !isset($SKIN_SETTINGS.show_subcategory_images) || $SKIN_SETTINGS.show_subcategory_images}
             <img src="{$subcat.cat_image}"
                  alt="{if isset($subcat.image_tags.alt)}{$subcat.image_tags.alt}{else}{$subcat.cat_name}{/if}"
                  {if isset($subcat.image_tags.title)}title="{$subcat.image_tags.title}"{/if}
                  loading="lazy"
                  class="cc-media aspect-square w-full rounded-cc border border-ink-200 {$cc_media_fit}">
             <span class="mt-2 block text-xs text-ink-700 group-hover:text-ink-900">{$subcat.cat_name}</span>
+            {else}
+            <span class="block rounded-cc border border-ink-200 px-2 py-3 text-sm text-ink-700 group-hover:border-ink-400 group-hover:text-ink-900">{$subcat.cat_name}</span>
+            {/if}
          </a>
       </li>
       {/foreach}
@@ -88,7 +99,7 @@
    <div id="ccScroll" class="mt-6">
       <ul role="list" class="product_list"
           :class="isGrid()
-             ? 'grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-3 xl:grid-cols-4'
+             ? 'grid {$cc_grid_cols} gap-x-6 gap-y-10'
              : 'flex flex-col divide-y divide-ink-200'">
          {foreach from=$PRODUCTS item=product name=products}
          <li class="cc-tile" :class="isGrid() ? '' : 'py-5 first:pt-0'">
@@ -104,7 +115,7 @@
                           {if isset($product.image_tags.thumbnail.title)}title="{$product.image_tags.thumbnail.title}"{/if}
                           {* See content.homepage.php: the first row is the LCP
                              candidate and must not be lazy. *}
-                          {if $smarty.foreach.products.iteration <= 4}{if $smarty.foreach.products.first}fetchpriority="high"{/if}{else}loading="lazy"{/if}
+                          {if $smarty.foreach.products.iteration <= $cc_grid_row}{if $smarty.foreach.products.first}fetchpriority="high"{/if}{else}loading="lazy"{/if}
                           class="aspect-square w-full {$cc_media_fit}">
                   </a>
                   {* Confetti: a tilted sticker on sale items. Outside the link, so it is
@@ -204,6 +215,10 @@
       </ul>
 
       {include file='templates/element.category.pagination.traditional.php'}
+
+      {if !empty($category.cat_desc) && $cc_desc_below}
+      <div class="prose-cc mt-10">{$category.cat_desc}</div>
+      {/if}
 
       {include file='templates/element.recently_viewed.php'}
    </div>
