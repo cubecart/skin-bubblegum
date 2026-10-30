@@ -14,7 +14,7 @@
 	<original_name><![CDATA[atrium]]></original_name>
 	<display><![CDATA[Bubblegum]]></display>
 	<description><![CDATA[A bold, bright and playful skin built on Atrium. Chunky outlines, hard pop shadows, candy colours and a rainbow stripe, with every Atrium feature underneath.]]></description>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<!-- 6.7.6 is a real floor, not politeness: content.withdraw.php and the
 	     single-gateway hidden-input behaviour arrive in 6.7.4, and element.meta.php
 	     changes in 6.7.6. Core reads this for display only (plugins.index.inc.php:418)
